@@ -1,9 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import RequestPermitView from '../views/RequestPermitView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [{ path: '/', name: 'home', component: HomeView }],
+  routes: [
+    { path: '/', name: 'home', component: HomeView },
+    { path: '/request-permit', name: 'request-permit', component: RequestPermitView },
+  ],
 })
 
 export default router
