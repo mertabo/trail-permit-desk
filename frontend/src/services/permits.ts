@@ -45,3 +45,8 @@ export type PermitSearchResult = {
 export function searchPermits(email: string, page: number) {
   return request<PermitSearchResult>(`/permits/search?email=${encodeURIComponent(email)}&page=${page}`)
 }
+
+/** The email must be the permit's email. It's the only link between the caller and the permit. */
+export function cancelPermit(id: number, email: string) {
+  return request<Permit>(`/permits/${id}/cancel`, { method: 'POST', body: JSON.stringify({ email }) })
+}

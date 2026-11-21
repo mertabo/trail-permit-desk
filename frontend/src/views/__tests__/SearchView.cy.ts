@@ -95,3 +95,51 @@ it('a new search goes back to page 1', () => {
 
   cy.wait('@page1').its('request.query').should('deep.equal', { email: 'ben@example.com', page: '1' })
 })
+
+describe('actions menu', () => {
+  it('the kebab menu only appears for Active permits', () => {
+    const items = [permit(1, { status: 'active' }), permit(2, { status: 'expired' }), permit(3, { status: 'cancelled' })]
+    cy.intercept({ pathname: SEARCH }, result(items, 3))
+    cy.mountWithToast(SearchView)
+    searchFor('ana@example.com')
+
+    cy.get('[data-test="permit-1"] [data-test="actions-button"]').should('exist')
+    cy.get('[data-test="permit-2"] [data-test="actions-button"]').should('not.exist')
+    cy.get('[data-test="permit-3"] [data-test="actions-button"]').should('not.exist')
+  })
+
+  it("closing the modal without confirming doesn't call the endpoint", () => {
+    cy.intercept({ pathname: SEARCH }, result([permit(1)], 1))
+    cy.intercept('POST', '/api/permits/1/cancel', cy.spy().as('cancel'))
+    cy.mountWithToast(SearchView)
+    searchFor('ana@example.com')
+
+    cy.get('[data-test="actions-button"]').click()
+    cy.contains('button', 'Cancel permit').click()
+    cy.get('[data-test="confirm-modal"]').should('contain', "Cancel this permit? This can't be undone.")
+    cy.contains('button', 'Keep permit').click()
+
+    cy.get('[data-test="confirm-modal"]').should('not.exist')
+    cy.get('@cancel').should('not.have.been.called')
+  })
+
+  it('confirming cancels (sending the searched email), shows the success toast, and the row shows as cancelled', () => {
+    let cancelled = false
+    cy.intercept({ pathname: SEARCH }, (req) => req.reply(result([permit(1, { status: cancelled ? 'cancelled' : 'active' })], 1)))
+    cy.intercept('POST', '/api/permits/1/cancel', (req) => {
+      cancelled = true
+      req.reply({ ...permit(1), status: 'cancelled' })
+    }).as('cancel')
+    cy.mountWithToast(SearchView)
+    searchFor('ana@example.com')
+
+    cy.get('[data-test="actions-button"]').click()
+    cy.contains('button', 'Cancel permit').click()
+    cy.get('[data-test="confirm"]').click()
+
+    cy.wait('@cancel').its('request.body').should('deep.equal', { email: 'ana@example.com' })
+    cy.get('[data-test="toast"]').should('contain', 'Permit cancelled')
+    cy.get('[data-test="permit-1"]').should('contain', 'Cancelled')
+    cy.get('[data-test="permit-1"] [data-test="actions-button"]').should('not.exist')
+  })
+})

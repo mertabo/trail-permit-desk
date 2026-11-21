@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import ActionsMenu from '@/components/ActionsMenu.vue'
+import type { Action } from '@/components/actions'
 import AppLoader from '@/components/AppLoader.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import { useRequest } from '@/composables/useRequest'
-import { searchPermits, type PermitSearchItem } from '@/services/permits'
+import { useToast } from '@/composables/useToast'
+import { cancelPermit, searchPermits, type PermitSearchItem } from '@/services/permits'
 import { trailLabel } from '@/utils/trails'
 
 const STATUS: Record<PermitSearchItem['status'], { label: string; badge: string }> = {
@@ -27,6 +31,29 @@ function search() {
 function goToPage(page: number) {
   if (searchedEmail.value) run(searchedEmail.value, page)
 }
+
+// Cancelling: the menu opens a confirmation first, because a cancel can't be undone.
+const permitToCancel = ref<PermitSearchItem | null>(null)
+const { loading: cancelling, run: runCancel } = useRequest(cancelPermit)
+const { showSuccess } = useToast()
+
+async function confirmCancel() {
+  if (!permitToCancel.value || !searchedEmail.value) return
+  // The backend only cancels when the email matches the permit's (on error, useRequest shows the toast).
+  const cancelled = await runCancel(permitToCancel.value.id, searchedEmail.value)
+  permitToCancel.value = null
+  if (cancelled) showSuccess('Permit cancelled')
+  goToPage(result.value?.page ?? 1) // reload, so the table shows the permit's current status
+}
+
+// The row actions. Adding an action means adding one entry here.
+const actions: Action<PermitSearchItem>[] = [
+  {
+    label: 'Cancel permit',
+    isAvailable: (permit) => permit.status === 'active', // expired and cancelled permits can't be cancelled
+    run: (permit) => (permitToCancel.value = permit),
+  },
+]
 </script>
 
 <template>
@@ -65,6 +92,7 @@ function goToPage(page: number) {
               <th scope="col">Party size</th>
               <th scope="col">Permit status</th>
               <th scope="col">Trail status</th>
+              <th scope="col"><span class="visually-hidden">Actions</span></th>
             </tr>
           </thead>
           <tbody>
@@ -84,6 +112,13 @@ function goToPage(page: number) {
                   CLOSED
                 </span>
                 <span v-else class="text-body-secondary">Open</span>
+              </td>
+              <td class="text-end">
+                <ActionsMenu
+                  :item="permit"
+                  :actions="actions"
+                  :label="`Actions for permit on ${permit.trail}, ${permit.date}`"
+                />
               </td>
             </tr>
           </tbody>
@@ -120,5 +155,16 @@ function goToPage(page: number) {
         </ul>
       </nav>
     </template>
+
+    <ConfirmModal
+      v-if="permitToCancel"
+      title="Cancel permit"
+      message="Cancel this permit? This can't be undone."
+      confirm-label="Cancel permit"
+      cancel-label="Keep permit"
+      :busy="cancelling"
+      @confirm="confirmCancel"
+      @close="permitToCancel = null"
+    />
   </main>
 </template>
