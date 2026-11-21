@@ -24,3 +24,24 @@ export type CreatePermitRequest = {
 export function createPermit(body: CreatePermitRequest) {
   return request<Permit>('/permits', { method: 'POST', body: JSON.stringify(body) })
 }
+
+export type PermitSearchItem = {
+  id: number
+  trail: string
+  trail_name: string | null
+  trail_status: 'open' | 'closed'
+  date: string
+  party_size: number
+  status: 'active' | 'expired' | 'cancelled' // "expired" is computed by the backend
+}
+
+export type PermitSearchResult = {
+  items: PermitSearchItem[]
+  total: number
+  page: number
+  page_size: number
+}
+
+export function searchPermits(email: string, page: number) {
+  return request<PermitSearchResult>(`/permits/search?email=${encodeURIComponent(email)}&page=${page}`)
+}
