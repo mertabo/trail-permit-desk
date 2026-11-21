@@ -16,6 +16,12 @@ export function addDays(date: string, days: number): string {
   return `${result.getUTCFullYear()}-${pad(result.getUTCMonth() + 1)}-${pad(result.getUTCDate())}`;
 }
 
+/** True if the date is between today and today + 30 (the booking window). */
+export function isInBookingWindow(date: string, now: Date = new Date()): boolean {
+  const first = today(now);
+  return date >= first && date <= addDays(first, BOOKING_WINDOW_DAYS - 1);
+}
+
 /** True if the string is a real calendar date in 'YYYY-MM-DD' form. */
 export function isValidDate(value: unknown): value is string {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
