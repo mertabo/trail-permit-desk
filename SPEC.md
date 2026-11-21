@@ -1,5 +1,7 @@
 # Trail Permit Desk — Summary
 
+> A short, human-readable summary of the [v1 spec](specs/trail-permit-desk-spec.v1.md), written for people reading the project. The full specs in [`specs/`](specs/) are the detailed versions used to guide the AI during implementation. Changes made during implementation are in [v2](specs/trail-permit-desk-spec.v2.md) and the [changelog](specs/CHANGELOG.md).
+
 A small web app for **Ridgeline Park** that replaces a shared spreadsheet for day-hike permits. Twice last month a trail was over-issued because two people saved at the same moment. This app makes that impossible.
 
 **Stack:** Vue + TypeScript + Bootstrap (frontend) · Node.js + TypeScript REST API (backend) · PostgreSQL in Docker · Jest + Cypress component tests
@@ -63,3 +65,14 @@ Login and accounts · editing permits · screens for managing trails or channels
 About 60 tests, focused on what protects the data or is likely to break. Endpoint tests run against a **real test database**, because the lock and constraints are what's being tested. Two tests are required by the brief:
 - concurrent requests through the real API never over-issue
 - the permit form works for more than one channel, plus a made-up fourth channel to show it's config-driven
+
+## References
+
+The [`specs/`](specs/) folder holds the full specs, written to guide the AI during implementation. They're detailed on purpose: every rule, query, edge case and test. This file is the short version for people.
+
+| File | What it is |
+|---|---|
+| [`specs/trail-permit-desk-spec-draft.md`](specs/trail-permit-desk-spec-draft.md) | The first rough draft |
+| [`specs/trail-permit-desk-spec.v1.md`](specs/trail-permit-desk-spec.v1.md) | The refined spec the app was built from. This summary is based on it. |
+| [`specs/trail-permit-desk-spec.v2.md`](specs/trail-permit-desk-spec.v2.md) | The current spec, including changes made during implementation |
+| [`specs/CHANGELOG.md`](specs/CHANGELOG.md) | What changed from v1 to v2, and why, with links to the commits |
