@@ -189,3 +189,53 @@ describe('validation, sent straight to the API', () => {
     expect(await activeHikers('RDG-01')).toBe(0);
   });
 });
+
+describe('idempotency', () => {
+  beforeEach(() => insertTrail({ code: 'RDG-01', daily_quota: 20 }));
+
+  async function permitCount() {
+    const { rows } = await pool.query('SELECT count(*)::int AS count FROM permits');
+    return rows[0].count as number;
+  }
+
+  test('same key twice → one permit, and the second call returns the original (even if its data is different)', async () => {
+    const first = onlineRequest({ party_size: 2 });
+    const firstResponse = await save(first);
+
+    const secondResponse = await save({ ...first, fields: { ...first.fields, party_size: 5, email: 'other@example.com' } });
+
+    expect(secondResponse.status).toBe(201);
+    expect(secondResponse.body).toEqual(firstResponse.body);
+    expect(secondResponse.body.party_size).toBe(2);
+    expect(await permitCount()).toBe(1);
+  });
+
+  test('same key sent at the same time → one permit', async () => {
+    const body = onlineRequest();
+
+    const responses = await Promise.all(Array.from({ length: 5 }, () => save(body)));
+
+    expect(responses.map((r) => r.status)).toEqual([201, 201, 201, 201, 201]);
+    expect(new Set(responses.map((r) => r.body.id)).size).toBe(1);
+    expect(await permitCount()).toBe(1);
+  });
+
+  test('same trail, date and email with a different key → DUPLICATE_BOOKING', async () => {
+    await save(onlineRequest({ email: 'ana@example.com' }));
+
+    const response = await save(onlineRequest({ email: 'ana@example.com' }));
+
+    expect(response.body).toEqual({ code: 'DUPLICATE_BOOKING' });
+  });
+
+  test('a replay succeeds even if the trail was closed after the first save', async () => {
+    const body = onlineRequest();
+    const first = await save(body);
+    await pool.query("UPDATE trails SET status = 'closed' WHERE code = 'RDG-01'");
+
+    const replay = await save(body);
+
+    expect(replay.status).toBe(201);
+    expect(replay.body.id).toBe(first.body.id);
+  });
+});
