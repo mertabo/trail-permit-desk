@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { route } from '../http';
+import { cancelPermit } from '../permits/cancelPermit';
 import { savePermit, type SaveDependencies } from '../permits/savePermit';
 import { searchPermits } from '../permits/searchPermits';
 
@@ -18,6 +19,13 @@ export function createPermitsRouter(deps?: SaveDependencies) {
     '/permits/search',
     route('GET /permits/search', async (req, res) => {
       res.json(await searchPermits(req.query));
+    }),
+  );
+
+  router.post(
+    '/permits/:id/cancel',
+    route('POST /permits/:id/cancel', async (req, res) => {
+      res.json(await cancelPermit(String(req.params.id), req.body));
     }),
   );
 
