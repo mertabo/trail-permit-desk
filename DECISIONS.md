@@ -49,3 +49,16 @@ The brief asks us to notice each oddity in the data, decide, and write it down. 
 | 17 | `party_size` has `min: 1` but no max | The max is `min(max_party, remaining quota)`, checked on the server | `max_party` is "the largest party that channel may request in one permit". |
 | 18 | `tel` has no pattern | Only checked as required, no format check | No format was given. Inventing one could reject real numbers. |
 | 19 | `lead_name` is labelled "Guide name" on the operator channel | Use each channel's own label | Labels come from the data. The key is what matters for storage. |
+
+## Search performance
+
+The email lookup must stay fast with millions of permits. Search uses the index `permits (email, date, id)`, which matches both the filter (`email = ...`) and the sort (`ORDER BY date DESC, id DESC`), so Postgres reads one person's newest 10 permits straight from the index, already in order.
+
+`EXPLAIN ANALYZE` of the search query, on the seeded database (51,000 permits, 19 for the email searched):
+
+| | Plan | Execution time |
+|---|---|---|
+| With the index | `Index Scan Backward using permits_email_date_id`, no Sort step | 0.032 ms |
+| Without the index | `Seq Scan on permits` (all 51,000 rows), then `Sort` | 3.43 ms |
+
+Without the index, every search reads the whole table, so it gets slower with every permit added. With it, the cost depends on how many permits one email has, not on the size of the table. The `total` count uses the same index.
