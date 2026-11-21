@@ -37,3 +37,8 @@ CREATE TABLE permits (
 CREATE UNIQUE INDEX permits_one_active_per_person
   ON permits (trail, date, email)
   WHERE status = 'active';
+
+-- For the email search: matches its filter (email) and its sort (date, id), so Postgres can read
+-- one person's permits already in order, without sorting. Read backwards for newest-first.
+CREATE INDEX permits_email_date_id
+  ON permits (email, date, id);
