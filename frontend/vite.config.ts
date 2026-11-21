@@ -11,6 +11,8 @@ export default defineConfig({
     },
   },
   server: {
+    // Lets component tests import the shared /data files from the repo root.
+    fs: { allow: [fileURLToPath(new URL('..', import.meta.url))] },
     // The frontend calls /api/...; Vite forwards it to the backend without the /api prefix.
     proxy: {
       '/api': {
