@@ -1,0 +1,15 @@
+{
+  "exported_at": "2026-11-18T09:00:00+08:00",
+  "note": "Exported from the permits spreadsheet. daily_quota is hikers per day.",
+  "trails": [
+    { "code": "RDG-01", "name": "Ridgeline Loop", "daily_quota": 40, "status": "open", "updated_at": "2026-09-02" },
+    { "code": "FAL-02", "name": "Falls Track ", "daily_quota": "25", "status": "open", "updated_at": "2026-09-02" },
+    { "code": "rdg-01", "name": "Ridgeline Loop (new signage)", "daily_quota": 45, "status": "open", "updated_at": "2026-11-10" },
+    { "code": "SMT-03", "name": "Summit Scramble", "daily_quota": 12, "status": "open", "updated_at": "2026-10-15" },
+    { "code": "CAV-04", "name": "Cave Walk", "daily_quota": null, "status": "open", "updated_at": "2026-10-15" },
+    { "code": "MOS-05", "name": "Moss Gully", "daily_quota": 30, "status": "closed", "updated_at": "2026-11-01" },
+    { "code": "LKE-06", "name": "Lakeside", "daily_quota": 0, "status": "open", "updated_at": "2026-11-01" },
+    { "code": "OLD-07", "name": "", "daily_quota": 20, "status": "Open", "updated_at": "2026-08-20" },
+    { "code": "BRD-08", "name": "Birdwatch Boardwalk", "daily_quota": 3, "status": "open", "updated_at": "2026-11-12" }
+  ]
+}

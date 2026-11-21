@@ -1,0 +1,43 @@
+{
+  "channels": [
+    {
+      "id": "online",
+      "label": "Online",
+      "max_party": 6,
+      "fields": [
+        { "key": "lead_name", "label": "Lead hiker name", "type": "text", "required": true, "max_length": 80 },
+        { "key": "email", "label": "Email", "type": "email", "required": true },
+        { "key": "party_size", "label": "Party size", "type": "number", "required": true, "min": 1 },
+        { "key": "emergency_phone", "label": "Emergency contact number", "type": "tel", "required": true }
+      ]
+    },
+    {
+      "id": "desk",
+      "label": "Ranger desk",
+      "max_party": 8,
+      "fields": [
+        { "key": "lead_name", "label": "Lead hiker name", "type": "text", "required": true, "max_length": 80 },
+        { "key": "email", "label": "Email", "type": "email", "required": false },
+        { "key": "party_size", "label": "Party size", "type": "number", "required": true, "min": 1 },
+        { "key": "ranger_initials", "label": "Ranger initials", "type": "text", "required": true, "pattern": "^[A-Z]{2,3}$" },
+        { "key": "paid_cash", "label": "Paid in cash", "type": "checkbox", "required": false }
+      ]
+    },
+    {
+      "id": "operator",
+      "label": "Tour operator",
+      "max_party": 12,
+      "fields": [
+        { "key": "operator_code", "label": "Operator", "type": "select", "required": true,
+          "options": [
+            { "value": "TRK", "label": "Trekline Tours" },
+            { "value": "HLD", "label": "Highland Guides" }
+          ] },
+        { "key": "lead_name", "label": "Guide name", "type": "text", "required": true, "max_length": 80 },
+        { "key": "email", "label": "Email", "type": "email", "required": true },
+        { "key": "party_size", "label": "Party size", "type": "number", "required": true, "min": 1 },
+        { "key": "notes", "label": "Notes for rangers", "type": "textarea", "required": false, "max_length": 280 }
+      ]
+    }
+  ]
+}
