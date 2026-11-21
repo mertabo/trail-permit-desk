@@ -31,8 +31,8 @@ test.each([
 
   const response = await cancel(permit.id);
 
-  expect(response.status).toBe(200);
-  expect(response.body).toMatchObject({ id: permit.id, status: 'cancelled' });
+  expect(response.status).toBe(204);
+  expect(response.text).toBe(''); // no body: nothing about the permit is sent back
   expect(await statusOf(permit.id)).toBe('cancelled');
 });
 
@@ -46,13 +46,13 @@ test('expired permit → PERMIT_EXPIRED, and it stays active in the database', a
   expect(await statusOf(permit.id)).toBe('active');
 });
 
-test('already cancelled → 200, still cancelled', async () => {
+test('already cancelled → 204, still cancelled', async () => {
   const permit = await insertPermit({ trail: 'RDG-01', date: today(), status: 'cancelled', email: EMAIL });
 
   const response = await cancel(permit.id);
 
-  expect(response.status).toBe(200);
-  expect(response.body.status).toBe('cancelled');
+  expect(response.status).toBe(204);
+  expect(await statusOf(permit.id)).toBe('cancelled');
 });
 
 test('unknown id → PERMIT_NOT_FOUND', async () => {

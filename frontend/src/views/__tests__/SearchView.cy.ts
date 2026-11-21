@@ -128,7 +128,7 @@ describe('actions menu', () => {
     cy.intercept({ pathname: SEARCH }, (req) => req.reply(result([permit(1, { status: cancelled ? 'cancelled' : 'active' })], 1)))
     cy.intercept('POST', '/api/permits/1/cancel', (req) => {
       cancelled = true
-      req.reply({ ...permit(1), status: 'cancelled' })
+      req.reply({ statusCode: 204 })
     }).as('cancel')
     cy.mountWithToast(SearchView)
     searchFor('ana@example.com')

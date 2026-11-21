@@ -25,7 +25,9 @@ export function createPermitsRouter(deps?: SaveDependencies) {
   router.post(
     '/permits/:id/cancel',
     route('POST /permits/:id/cancel', async (req, res) => {
-      res.json(await cancelPermit(String(req.params.id), req.body));
+      await cancelPermit(String(req.params.id), req.body);
+      // No body: success is the status code, and nothing about the permit is sent back.
+      res.status(204).end();
     }),
   );
 

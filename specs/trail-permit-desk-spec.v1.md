@@ -123,7 +123,7 @@ A **permit** is: `{ id, idempotency_key, trail, date, party_size, status, channe
 | `GET /channels` | | `200` `[{ id, label, max_party, fields }]` |
 | `POST /permits` | `{ idempotency_key, trail, date, channel, fields: { <key>: <value> } }` | `201` permit (also for an idempotent replay) |
 | `GET /permits/search?email=...&page=1` | | `200` `{ items: [{ id, trail, trail_name, trail_status, date, party_size, status }], total, page, page_size }`. Here `status` is `active`, `expired` or `cancelled`. |
-| `POST /permits/:id/cancel` | `{ email }` | `200` permit |
+| `POST /permits/:id/cancel` | `{ email }` | `204`, no body |
 
 ---
 
@@ -522,7 +522,8 @@ Builds on 17b.
 ### Cancel a permit
 
 #### Task 22 — Endpoint: cancel
-- `POST /permits/:id/cancel` with body `{ email }` → `200` with the permit. Follows the [cancelling rules](#2-business-rules).
+- `POST /permits/:id/cancel` with body `{ email }` → `204 No Content`. Follows the [cancelling rules](#2-business-rules).
+- No response body: the status code says it worked, and nothing about the permit (contact details, notes) is sent back.
 - The email must match the permit's email (trimmed, lowercased). Permit ids are sequential, so without this anyone could cancel every permit by trying ids one after another.
 - One statement, no lock needed:
   ```sql
@@ -532,14 +533,14 @@ Builds on 17b.
   ```
 - If no row comes back, look up the permit (by id and email) to return the right result:
   - doesn't exist, or the email doesn't match → `PERMIT_NOT_FOUND` (a wrong email doesn't reveal that the permit exists)
-  - already cancelled → `200` with the permit
+  - already cancelled → `204`
   - expired (active, but dated before today) → `PERMIT_EXPIRED`
 - An `id` that isn't a whole number, or a missing email → `VALIDATION_ERROR`.
 
 **Tests (Jest)**
 - cancels active permits dated today or later
 - expired permit → `PERMIT_EXPIRED`, and it stays `active` in the database
-- already cancelled → `200`, still cancelled
+- already cancelled → `204`, still cancelled
 - unknown id → `PERMIT_NOT_FOUND`
 - someone else's email → `PERMIT_NOT_FOUND`, and the permit stays active
 - after cancelling, the freed slots can be booked again, including by the same email

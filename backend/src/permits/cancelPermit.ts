@@ -21,19 +21,18 @@ export async function cancelPermit(id: string, body: unknown) {
 
   // One statement: the check and the change happen together, so no lock is needed. A cancel
   // running during a booking can only lower the booked count, so it can never cause over-issuing.
-  const { rows } = await pool.query(
+  const { rowCount } = await pool.query(
     `UPDATE permits SET status = 'cancelled'
-     WHERE id = $1 AND email = $2 AND status = 'active' AND date >= $3
-     RETURNING *`,
+     WHERE id = $1 AND email = $2 AND status = 'active' AND date >= $3`,
     [id, email, today()],
   );
-  if (rows[0]) return rows[0];
+  if (rowCount === 1) return;
 
   // Nothing was updated. Find out why, to return the right answer.
   // A wrong email looks exactly like a missing permit, so it doesn't reveal that the permit exists.
-  const { rows: found } = await pool.query('SELECT * FROM permits WHERE id = $1 AND email = $2', [id, email]);
-  const permit = found[0];
+  const { rows } = await pool.query('SELECT status FROM permits WHERE id = $1 AND email = $2', [id, email]);
+  const permit = rows[0];
   if (!permit) throw new AppError('PERMIT_NOT_FOUND');
-  if (permit.status === 'cancelled') return permit; // already cancelled: nothing to do, still a success
+  if (permit.status === 'cancelled') return; // already cancelled: nothing to do, still a success
   throw new AppError('PERMIT_EXPIRED'); // active, but its date has passed
 }

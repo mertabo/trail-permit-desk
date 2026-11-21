@@ -46,7 +46,11 @@ export function searchPermits(email: string, page: number) {
   return request<PermitSearchResult>(`/permits/search?email=${encodeURIComponent(email)}&page=${page}`)
 }
 
-/** The email must be the permit's email. It's the only link between the caller and the permit. */
-export function cancelPermit(id: number, email: string) {
-  return request<Permit>(`/permits/${id}/cancel`, { method: 'POST', body: JSON.stringify({ email }) })
+/**
+ * The email must be the permit's email. It's the only link between the caller and the permit.
+ * The backend answers 204 with no body, so this resolves to true once the cancel succeeds.
+ */
+export async function cancelPermit(id: number, email: string): Promise<true> {
+  await request<void>(`/permits/${id}/cancel`, { method: 'POST', body: JSON.stringify({ email }) })
+  return true
 }
