@@ -84,7 +84,6 @@ These are the rules the data must always follow. Tasks refer back to them.
 
 **Cancelling**
 - Only Active permits can be cancelled (status `active`, dated today or later). An expired permit: `PERMIT_EXPIRED`.
-- The cancel request must include the permit's email. A wrong email is treated like a missing permit: `PERMIT_NOT_FOUND`.
 - Cancelling an already cancelled permit returns success and changes nothing.
 - A cancelled permit frees its slots, and the same person can book that trail and date again.
 - A cancelled permit can't become active again.
@@ -123,7 +122,7 @@ A **permit** is: `{ id, idempotency_key, trail, date, party_size, status, channe
 | `GET /channels` | | `200` `[{ id, label, max_party, fields }]` |
 | `POST /permits` | `{ idempotency_key, trail, date, channel, fields: { <key>: <value> } }` | `201` permit (also for an idempotent replay) |
 | `GET /permits/search?email=...&page=1` | | `200` `{ items: [{ id, trail, trail_name, trail_status, date, party_size, status }], total, page, page_size }`. Here `status` is `active`, `expired` or `cancelled`. |
-| `POST /permits/:id/cancel` | `{ email }` | `204`, no body |
+| `POST /permits/:id/cancel` | | `200` permit |
 
 ---
 
@@ -522,42 +521,38 @@ Builds on 17b.
 ### Cancel a permit
 
 #### Task 22 — Endpoint: cancel
-- `POST /permits/:id/cancel` with body `{ email }` → `204 No Content`. Follows the [cancelling rules](#2-business-rules).
-- No response body: the status code says it worked, and nothing about the permit (contact details, notes) is sent back.
-- The email must match the permit's email (trimmed, lowercased). Permit ids are sequential, so without this anyone could cancel every permit by trying ids one after another.
+- `POST /permits/:id/cancel` → `200` with the permit. Follows the [cancelling rules](#2-business-rules).
 - One statement, no lock needed:
   ```sql
   UPDATE permits SET status = 'cancelled'
-  WHERE id = $1 AND email = $2 AND status = 'active' AND date >= $3
+  WHERE id = $1 AND status = 'active' AND date >= $2
   RETURNING *;
   ```
-- If no row comes back, look up the permit (by id and email) to return the right result:
-  - doesn't exist, or the email doesn't match → `PERMIT_NOT_FOUND` (a wrong email doesn't reveal that the permit exists)
-  - already cancelled → `204`
+- If no row comes back, look up the permit to return the right result:
+  - doesn't exist → `PERMIT_NOT_FOUND`
+  - already cancelled → `200` with the permit
   - expired (active, but dated before today) → `PERMIT_EXPIRED`
-- An `id` that isn't a whole number, or a missing email → `VALIDATION_ERROR`.
+- An `id` that isn't a whole number → `VALIDATION_ERROR`.
 
 **Tests (Jest)**
 - cancels active permits dated today or later
 - expired permit → `PERMIT_EXPIRED`, and it stays `active` in the database
-- already cancelled → `204`, still cancelled
+- already cancelled → `200`, still cancelled
 - unknown id → `PERMIT_NOT_FOUND`
-- someone else's email → `PERMIT_NOT_FOUND`, and the permit stays active
 - after cancelling, the freed slots can be booked again, including by the same email
 
 #### Task 23 — Actions menu with "Cancel permit"
-- A last column, **Actions**, with a meatballs menu (⋯, Bootstrap dropdown) on each row.
+- A last column, **Actions**, with a kebab menu (Bootstrap dropdown) on each row.
 - Actions are configured in one array, so adding an action means adding one entry:
   `[{ label: "Cancel permit", isAvailable: (permit) => ..., run: (permit) => ... }]`
 - "Cancel permit" is only available when the permit status is Active (the search endpoint already returns `expired` for past permits).
-- If a row has no available actions, the menu button is hidden.
+- If a row has no available actions, the kebab button is hidden.
 - "Cancel permit" opens a confirmation modal: "Cancel this permit? This can't be undone."
-  - The cancel request sends the email that was searched for.
   - The confirm button is disabled and shows a loader while cancelling.
   - On success: toast "Permit cancelled", close the modal, reload the current page.
   - On error: toast with the message for the code.
 
 **Tests (CCT)**
-- the meatballs menu only appears for Active permits
+- the kebab menu only appears for Active permits
 - closing the modal without confirming doesn't call the endpoint
-- confirming cancels (sending the searched email), shows the success toast, and the row shows as cancelled
+- confirming cancels, shows the success toast, and the row shows as cancelled
