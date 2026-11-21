@@ -1,13 +1,17 @@
 import { Router } from 'express';
 import { route } from '../http';
-import { savePermit } from '../permits/savePermit';
+import { savePermit, type SaveDependencies } from '../permits/savePermit';
 
-export const permitsRouter = Router();
+export function createPermitsRouter(deps?: SaveDependencies) {
+  const router = Router();
 
-permitsRouter.post(
-  '/permits',
-  route('POST /permits', async (req, res) => {
-    const permit = await savePermit(req.body);
-    res.status(201).json(permit);
-  }),
-);
+  router.post(
+    '/permits',
+    route('POST /permits', async (req, res) => {
+      const permit = await savePermit(req.body, deps);
+      res.status(201).json(permit);
+    }),
+  );
+
+  return router;
+}
