@@ -1,0 +1,12 @@
+{
+  "name": "trail-permit-desk",
+  "private": true,
+  "scripts": {
+    "setup": "npm ci && npm --prefix backend ci && npm --prefix frontend ci && npm --prefix backend run db:setup && npm --prefix backend run seed",
+    "start": "concurrently --kill-others-on-fail --names backend,frontend --prefix-colors blue,green \"npm --prefix backend start\" \"npm --prefix frontend start\"",
+    "test": "npm --prefix backend test && npm --prefix frontend run unit-test && npm --prefix frontend run component-test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5"
+  }
+}
