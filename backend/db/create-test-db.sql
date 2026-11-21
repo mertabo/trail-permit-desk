@@ -1,0 +1,1 @@
+CREATE DATABASE trail_permit_desk_test;

@@ -1,0 +1,32 @@
+{
+  "name": "trail-permit-desk-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "build": "vue-tsc --build && vite build",
+    "type-check": "vue-tsc --build",
+    "unit-test": "jest",
+    "component-test": "cypress run --component",
+    "component-test:open": "cypress open --component",
+    "prepare": "cypress install"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.9",
+    "vue": "^3.5.42",
+    "vue-router": "^5.3.1"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.11",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.19.43",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/tsconfig": "^0.9.1",
+    "cypress": "^15.21.2",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.15",
+    "typescript": "~5.9",
+    "vite": "^8.2.2",
+    "vue-tsc": "^3.3.11"
+  }
+}
