@@ -33,7 +33,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
       data-test="actions-button"
       @click="open = !open"
     >
-      ⋮
+      ⋯
     </button>
     <ul class="dropdown-menu dropdown-menu-end" :class="{ show: open }">
       <li v-for="action in available" :key="action.label">

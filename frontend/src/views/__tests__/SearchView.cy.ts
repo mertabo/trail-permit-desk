@@ -97,7 +97,7 @@ it('a new search goes back to page 1', () => {
 })
 
 describe('actions menu', () => {
-  it('the kebab menu only appears for Active permits', () => {
+  it('the meatballs menu only appears for Active permits', () => {
     const items = [permit(1, { status: 'active' }), permit(2, { status: 'expired' }), permit(3, { status: 'cancelled' })]
     cy.intercept({ pathname: SEARCH }, result(items, 3))
     cy.mountWithToast(SearchView)

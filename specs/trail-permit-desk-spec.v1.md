@@ -546,11 +546,11 @@ Builds on 17b.
 - after cancelling, the freed slots can be booked again, including by the same email
 
 #### Task 23 — Actions menu with "Cancel permit"
-- A last column, **Actions**, with a kebab menu (Bootstrap dropdown) on each row.
+- A last column, **Actions**, with a meatballs menu (⋯, Bootstrap dropdown) on each row.
 - Actions are configured in one array, so adding an action means adding one entry:
   `[{ label: "Cancel permit", isAvailable: (permit) => ..., run: (permit) => ... }]`
 - "Cancel permit" is only available when the permit status is Active (the search endpoint already returns `expired` for past permits).
-- If a row has no available actions, the kebab button is hidden.
+- If a row has no available actions, the menu button is hidden.
 - "Cancel permit" opens a confirmation modal: "Cancel this permit? This can't be undone."
   - The cancel request sends the email that was searched for.
   - The confirm button is disabled and shows a loader while cancelling.
@@ -558,6 +558,6 @@ Builds on 17b.
   - On error: toast with the message for the code.
 
 **Tests (CCT)**
-- the kebab menu only appears for Active permits
+- the meatballs menu only appears for Active permits
 - closing the modal without confirming doesn't call the endpoint
 - confirming cancels (sending the searched email), shows the success toast, and the row shows as cancelled
