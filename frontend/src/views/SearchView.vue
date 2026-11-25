@@ -9,6 +9,7 @@ import { useRequest } from '@/composables/useRequest'
 import { useToast } from '@/composables/useToast'
 import { cancelPermit, searchPermits, type PermitSearchItem } from '@/services/permits'
 import { trailLabel } from '@/utils/trails'
+import router from '@/router'
 
 const STATUS: Record<PermitSearchItem['status'], { label: string; badge: string }> = {
   active: { label: 'Active', badge: 'text-bg-success' },
@@ -34,6 +35,7 @@ function goToPage(page: number) {
 
 // Cancelling: the menu opens a confirmation first, because a cancel can't be undone.
 const permitToCancel = ref<PermitSearchItem | null>(null)
+const permitToEdit= ref<PermitSearchItem | null>(null)
 const { loading: cancelling, run: runCancel } = useRequest(cancelPermit)
 const { showSuccess } = useToast()
 
@@ -52,6 +54,11 @@ const actions: Action<PermitSearchItem>[] = [
     label: 'Cancel permit',
     isAvailable: (permit) => permit.status === 'active', // expired and cancelled permits can't be cancelled
     run: (permit) => (permitToCancel.value = permit),
+  },
+  {
+    label: 'Edit permit',
+    isAvailable: (permit) => permit.status === 'active', // expired and cancelled permits can't be cancelled
+    run: (permit) => (permitToEdit.value = permit),
   },
 ]
 </script>
@@ -165,6 +172,16 @@ const actions: Action<PermitSearchItem>[] = [
       :busy="cancelling"
       @confirm="confirmCancel"
       @close="permitToCancel = null"
+    />
+
+    <ConfirmModal
+      v-if="permitToEdit"
+      title="Edit permit"
+      confirm-label="Cancel permit"
+      cancel-label="Keep permit"
+      :busy="cancelling"
+      @confirm="confirmCancel"
+      @close="permitToEdit = null"
     />
   </main>
 </template>

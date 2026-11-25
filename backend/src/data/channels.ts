@@ -41,6 +41,15 @@ export function validateChannels(file: unknown): Channel[] {
       if (keys.filter((k) => k === key).length > 1) problems.push(`${channel.id}: field key "${key}" is repeated`);
     }
 
+    if (channel.id === 'school') {
+      const studentsField = channel.fields.find(field => field.key === 'students')
+      const chaperonesField = channel.fields.find(field => field.key === 'chaperones')
+
+      // both should exist, both should be required and has type number
+      if (studentsField && chaperonesField && studentsField?.type === 'number' && studentsField.required) continue
+      problems.push(`${channel.id}: needs required "students" and "chaperones" fields of type number`);
+    }
+
     // party_size is stored in its own column and drives the quota, so every channel needs it.
     const partySize = channel.fields.find((field) => field.key === 'party_size');
     if (!partySize || partySize.type !== 'number' || !partySize.required) {

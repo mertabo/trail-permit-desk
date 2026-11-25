@@ -25,6 +25,10 @@ export function createPermit(body: CreatePermitRequest) {
   return request<Permit>('/permits', { method: 'POST', body: JSON.stringify(body) })
 }
 
+export function editPermit(body: CreatePermitRequest) {
+  return request<Permit>('/permits', { method: 'POST', body: JSON.stringify(body) })
+}
+
 export type PermitSearchItem = {
   id: number
   trail: string

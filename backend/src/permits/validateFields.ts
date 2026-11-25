@@ -57,6 +57,10 @@ export function validateFields(channel: Channel, fields: unknown) {
     else details[field.key] = value;
   }
 
+  // if (channel.id === 'school') {
+  //   partySize = (fields as { party_size: number }).party_size
+  // }
+
   if (partySize > channel.max_party) {
     throw new AppError('VALIDATION_ERROR', `party_size must be at most ${channel.max_party} for ${channel.id}`);
   }

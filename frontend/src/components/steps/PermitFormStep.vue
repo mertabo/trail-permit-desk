@@ -8,7 +8,7 @@ import type { Channel, ChannelField } from '@/services/channels'
 import { createPermit } from '@/services/permits'
 import type { TrailAvailability } from '@/services/trails'
 import { availableSlots, trailLabel } from '@/utils/trails'
-import { validateField } from '@/utils/validateField'
+import { validateField, validateSchoolFields } from '@/utils/validateField'
 
 const props = defineProps<{
   date: string
@@ -36,6 +36,9 @@ function updateField(key: string, value: unknown) {
 
 async function onSave() {
   const hasErrors = props.channel.fields.some((field) => validateField(field, fields.value[field.key], maxFor(field)))
+  // if (props.channel.id === 'school') {
+  //   validateSchoolFields(fields.value as unknown as ChannelField[])
+  // }
   if (hasErrors) {
     showErrors.value = true
     return
@@ -71,6 +74,8 @@ async function onSave() {
       :show-errors="showErrors"
       @update:model-value="updateField(field.key, $event)"
     />
+
+    <p v-if="channel.id === 'school'">Total party size: {{ Number(fields.students || 0) + Number(fields.chaperones || 0) }}</p>
 
     <button type="submit" class="btn btn-primary" :disabled="saving" data-test="save">
       <span v-if="saving" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>

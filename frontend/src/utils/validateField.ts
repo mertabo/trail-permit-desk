@@ -37,3 +37,9 @@ export function validateField(field: ChannelField, value: unknown, max?: number)
   if (field.pattern && !new RegExp(field.pattern).test(text)) return `${label} isn't in the right format.`
   return null
 }
+
+export const validateSchoolFields = (fields: ChannelField[]) => {
+
+  console.log(fields)
+
+}

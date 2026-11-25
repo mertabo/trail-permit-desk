@@ -9,6 +9,7 @@ const router = createRouter({
     { path: '/', name: 'home', component: HomeView },
     { path: '/request-permit', name: 'request-permit', component: RequestPermitView },
     { path: '/find-permit', name: 'find-permit', component: SearchView },
+    { path: '/edit-permit/:id', name: 'request-permit', component: RequestPermitView },
   ],
 })
 

@@ -3,6 +3,7 @@ import { route } from '../http';
 import { cancelPermit } from '../permits/cancelPermit';
 import { savePermit, type SaveDependencies } from '../permits/savePermit';
 import { searchPermits } from '../permits/searchPermits';
+import { editPermit } from '../permits/editPermit';
 
 export function createPermitsRouter(deps?: SaveDependencies) {
   const router = Router();
@@ -28,6 +29,14 @@ export function createPermitsRouter(deps?: SaveDependencies) {
       await cancelPermit(String(req.params.id), req.body);
       // No body: success is the status code, and nothing about the permit is sent back.
       res.status(204).end();
+    }),
+  );
+
+  router.post(
+    '/permits/:id/edit',
+    route('POST /permits/:id/cancel', async (req, res) => {
+      const permit = await editPermit(req.body, deps);
+      res.status(200).json(permit);
     }),
   );
 

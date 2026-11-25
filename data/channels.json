@@ -38,6 +38,18 @@
         { "key": "party_size", "label": "Party size", "type": "number", "required": true, "min": 1 },
         { "key": "notes", "label": "Notes for rangers", "type": "textarea", "required": false, "max_length": 280 }
       ]
+    },
+    {
+      "id": "school",
+      "label": "School group",
+      "max_party": 30,
+      "fields": [
+        { "key": "school_name", "label": "School name", "type": "text", "required": true, "max_length": 120 },
+        { "key": "lead_name", "label": "Teacher in charge", "type": "text", "required": true, "max_length": 80 },
+        { "key": "email", "label": "Teacher email", "type": "email", "required": true },
+        { "key": "students", "label": "Number of students", "type": "number", "required": true, "min": 1 },
+        { "key": "chaperones", "label": "Number of adult chaperones", "type": "number", "required": true, "min": 1 }
+      ]
     }
   ]
 }
